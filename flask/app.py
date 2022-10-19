@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
 import json
 import re
 import requests
@@ -11,7 +12,11 @@ from cohere.classify import Example
 prompt = '\nSummarize the suggestion:\nMy mother-in law was German add taught me how to make these 40 ye. ago. I make mine with onion and server them with ham and bean soup.\nSummary: Make with onion and serve with ham and bean soup\n--\nSummarize the suggestion:\nTwo eggs are not enough. I used three and it was still DRY (very tasty, but dry). Five or six would be much better - with two it was more like a pile of onions than an onion pie.\nSummary: Use five to six eggs instead of three\n--\nSummarize the suggestion:\nI love butter but added almonds. Next time I\'ll try toasted almonds. IH\nSummary: Add almonds or toasted almonds\n--\nSummarize the suggestion:\nThis salad is absolutely delicious. My husband didn\'t like it, however, because he doesn\'t like cilantro. You could substitute parsley or leave it out entirely, if you wanted, but I like it the way it is. I will make this often and am sharing it with my friends!\nSummary: Substitute parsley\n--\nSummarize the suggestion:\nI agree with the other comments (use fresh mozerella, etc.) It\'s hard to find in some areas. Trader Joe\'s has it. Italian deli\'s have it, if you are lucky enough to have one where you live. I just have one suggestion. Drizzle on some Balsamic vinegar along with the olive oil. I travelled all over Italy last summer and ate this salad everywhere. Many places added the Balsamic and it makes a good salad really good!\nSummary: Use fresh mozerella and drizzle on balsamic vinegar\n--\nSummarize the suggestion:\nThis was wonderful--finally got around to using the A to Z ingredients--and I used 2 cups of strawberries! this bread was great--it will be in my cookbook for good because of its totally unmatched level of versatility.\nSummary: Use strawberries\n--\nSummarize the suggestion:\nVery easy to make for a lunch. I served it cold as a sandwich. I found it a little too bland though. Next time I make it I will add some cheese (like blue cheese or sharp cheddar)\nSummary: Add some cheese\n--\nSummarize the suggestion:\nIt is actually a recipe for Shrimp Mousse, it should be poured into a greased mold, refrigerated\n \n then unmolded onto a serving plate. It really would not freeze well because of the ingredients.\nSummary: Pour this into a greased mold\n--\nSummarize the suggestion:\nJust like my Granny use to make but she.d swop raisins for currants occasionally.\nSummary: Swap raisins for currants\n--\nSummarize the suggestion:\nI did\'t have Mustard oil so used canola. Very tasty.\nSummary: Use canola instead of mustard oil\n--\nSummarize the suggestion:\nExcellent easy recipe - I made w/out coconut and it was still good. Also, substituted oat flour for the oat meal and it worked just fine.\nSummary: Make it without coconut.\n--\nSummarize the suggestion:\nThis was VERY good, and easy. My favorite combination. There were no leftovers at our house either. I added a little minced garlic and I cooked the chicken in a baking dish in half a can of chicken broth, I didn\'t add the other ingredients until the chicken had cooked a little, then added the cheese, and diluted the soup with the other half can of broth. I also instead of \"topping\" the chicken with the stuffing mix, put it between and all around the chicken. That way, you could see the chicken, and the stuffing.\nSummary: Add a little minced garlic and cook the chicken in a baking dish in half a can of chicken broth\n--\nSummarize the suggestion:\nI used small whole red potatoes instead of cutting up larger ones. Baked at 350 and added a little parsley for color. Absolutely delicious.\nSummary: Use small whole red potatoes and add parsley\n--\nSummarize the suggestion:\nI made this with breasts as well. I left the skin on (removing any excess fat) to avoid drying it out too much. It was great. I served it to my family and they all loved it. The left overs were even better the next day. Very easy, quick preparation and looks lovely served with saffron rice and fresh green beans. A great company dish.\nSummary: Make it with breasts and leave the skin on\n--\nSummarize the suggestion:\nI substituted nutritional yeast for the milk powder to veganize this, and black instead of green olives, and it turned out absolutely fantastic.\nSummary: Substitute nutritional yeast for milk and use black instead of green olives\n--\nSummarize the suggestion:\nTo me, basmati rice is the best. Instead of water I use chicken stock. It adds a little more flavor\nSummary: Use basmati rice and use chicken stock instead of water\n--\nSummarize the suggestion:\nI made this and froze it. I served it a week later and it was just fine. Lemon and blueberries go together in this recipe very well\nSummary: Freeze it\n--\nSummarize the suggestion:\nThis recipe needs to include some sliced carrots. I think they can be substituted for some of the peas, but they are definately something that needs to be added to break up the color a bit. About 1/2 cup should do.\nSummary: Include some sliced carrots instead of peas\n--\nSummarize the suggestion:\nThis was a very good meatloaf BUT to spicy for OUR TASTE. I omitted the oregano and garlic and added chopped bell pepper w/the onion. Added soft bread cubes to 2 tbs. milk, 1 tbs. Lea n Perrin, squished it all up well; added 1 well-beaten egg squishing more and squishing in about 3/4cup Ketchup. Patted into a 13x9 greased {Pam Spray} dish, w/hand made furrows across the top, laid raw sliced bacon strips on top. Baked at 325* to 350* about one (1) hour and drained grease/liquid from dish, removed bacon slices and poured{and spread evenly} about 1 cup Ketchup over top and continue cooking 30 minutes....my family love this version of this recipe.....especialy served with Dutchess Pototoes, dried Black-eyed peas, creamed corn, buttermilk cornbread and, if there is any room......Black-berry cobbler and vanilla ice cream.....THIS IS DEFINITELY A COLD WEATHER MENU!\nSummary: Omit the oregano and add chopped bell pepper, soft bread cubes, and egg\n--\nSummarize the suggestion:\nLovely way to serve Zucchini,its nice to able to prepare in advance so you can just pop it in the oven.I did substitute the green pepper for Red and half the chedder for a blue cheese(alocal on e here in S.Africa)just for a variation.\nSummary: Substitute the green pepper for red and half the cheddar for blue cheese\n--\nSummarize the suggestion:\nI cut back on the mayo, and made up the difference with sour cream to adjust the stiffness of the dip.\nSummary: Cut back on the mayo and make up the difference with sour cream\n--\nSummarize the suggestion:\nlove it, but without the bean sprouts.\nSummary: Don\'t include the bean sprouts\n--\nSummarize the suggestion:\nchewy goodness, not crispy at all. i even threw in craisins and left the oatmeal whole, and they were great.\nSummary: Add craisins and leave the oatmeal whole\n--\nSummarize the suggestion:\nthis is absolutely delicious. i even served it with lime slices so you could squeeze on more of the acid.\nSummary: Serve with lime slices\n--\nSummarize the suggestion:\nleeks on a pizza?! it was really delicious. i used a boboli and added some chicken sausage slices and mushrooms too.\nSummary: Add chicken sausage slices and mushrooms\n--\nSummarize the suggestion:\n'
 
 app = Flask(__name__)
-co = cohere.Client('wwgGM8zicRupgJVGxutU82I6IreIAsqyIMyuLYVa')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+co = cohere.Client('jNXW3Ms2HjqYjm3waa8umQCKA7gUICTnd8tj8Yfl')
+
 
 def scrape(url, n):
 
@@ -59,6 +64,7 @@ def scrape(url, n):
     return review_texts, review_likes
 
 @app.route('/search')
+@cross_origin()
 def get_suggestions():
 
     args = request.args.to_dict()
@@ -107,13 +113,11 @@ def get_suggestions():
 
                 print(summary.generations[0].text)
 
-                summaries.append(summary.generations[0].text)
+                summaries.append(summary.generations[0].text[1:-3] + ("." if summary.generations[0].text[-4] != "." else ""))
                 original_reviews.append(text)
-            except:
+            except :
                 continue
         
         return jsonify({'status': 1, 'summary': summaries, 'original_reviews': original_reviews})
-    except:
+    except :
         return jsonify({'status':0})
-'''
-'''

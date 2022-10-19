@@ -4,14 +4,30 @@
     "version": "1.0",
     "description": "Make recipes better.",
     "icons": {
+        "400": "sous_chef_logo.png"
     },
-    "content_scripts": [
-        {
-          "js": ["scripts/content.js"],
-          "matches": [
-            "https://developer.chrome.com/docs/extensions/*",
-            "https://developer.chrome.com/docs/webstore/*"
-          ]
-        }
-      ]
+    "background": {
+        "service_worker": "scripts/background.js"
+    },
+    "permissions": [
+        "webNavigation",
+        "tabs"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+      },
+      "web_accessible_resources": [ {
+        "resources": [ "modal.html", "bootstrap.min.js", "bootstrap.min.css"],
+        "matches": [ "https://www.food.com/*" ]
+      }
+      ],
+      "content_scripts": [
+          {
+            "js": ["scripts/jquery.js", "scripts/content.js"],
+            "matches": [
+              "https://www.food.com/recipe/*"
+            ]
+          }
+      ],
+    "host_permissions": ["https://127.0.0.1/*"]
   }

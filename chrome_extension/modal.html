@@ -1,0 +1,98 @@
+<style>
+    #container {
+        position: fixed;
+        z-index: 1000;
+    }
+    #modal {
+        position: fixed;
+        text-align: center;
+        border-radius: 20px;
+        border: 4px solid orange;
+        background-color: white;
+        left:70%;
+        margin-top: 20px;
+        margin-right: 20px;
+        width:30%;
+        font-size: 10pt;
+        padding-bottom: 20px;
+    }
+    #loader_container {
+        position: relative;
+        left:40%;
+        margin-top: 20px;
+    }
+    #suggestions{
+        position: relative;
+        text-align: left;
+        padding-top: 20px;
+        padding-right: 15px;
+        padding-left: 10px;
+        list-style: none;
+    }
+    .suggestion{
+
+        display: flex;
+        margin-bottom: 5px;
+        font-weight: normal;
+    }
+    .suggestion:hover{
+        color:orange;
+        font-weight: bold;
+    }
+    .suggestion::before{
+        line-height: 16px;
+        content: "-";
+        margin-right: 1em;
+    }
+    a.nostyle:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+#full_review {
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 20px;
+    line-height: 15px;
+    text-align: justify;
+}
+
+a.nostyle:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+    #close_modal {
+
+        text-align:right;
+        margin-right: 15px;
+    }
+    .loader {
+    border: 8px solid orange;
+    border-top: 8px solid white;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
+  </style>
+  <div id ="container">
+    <div id = "modal">
+        <div id ="close_modal">
+        <a class="nostyle" id="close_modal_a" href="#x">x</a>
+        </div>
+        <h3> <b>Sous Chef Suggestions</b> </h3>
+        <div id = "loader_container">
+            <div class="loader"></div>
+        </div>
+        <div id = "suggestions">
+        </div>
+        <div id = "full_review">
+        </div>
+    </div>
+</div>
